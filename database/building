@@ -1,0 +1,87 @@
+import { v4 as uuidv4 } from 'uuid';
+
+interface StardustRecord {
+  id: string;
+  content: string;
+  title: string;
+  category: "CAREER" | "GROWTH" | "FAMILY" | "LEISURE" | "SOCIAL" | "HEALTH" | "WEALTH";
+  importance: number;
+  created_at: number;
+  updated_at: number;
+  source_type: "recording" | "manual";
+  metadata: Record<string, unknown>;
+  project_id?: string;
+}
+
+// 30条装修项目素材
+// 时间逻辑：从规划平面图 -> 硬装施工 -> 选材 -> 软装 -> 收尾
+const rawRenovationData = [
+  // --- Phase 1: 规划与硬装 (3-4周前) ---
+  { content: "跟工长吵了一架，那个强电箱的位置完全破坏了这面墙的完整性，必须移到柜子里去。", source: "recording", imp: 0.9 },
+  { content: "正在画 Workshop 的布局图，3D 打印区必须要有独立的排风系统，不然味道太大。", source: "manual", imp: 0.8 },
+  { content: "Della 坚持要用全地毯，但我还是觉得抛光水泥自流平更有工业风，且好打理。", source: "recording", imp: 0.7 },
+  { content: "服务器机房的空调要装独立的，24小时恒温，不然夏天那些 GPU 跑模型会炸。", source: "manual", imp: 0.8 },
+  { content: "看了三家玻璃隔断的样品，选了超白玻，普通玻璃泛绿，看着很难受。", source: "manual", imp: 0.7 },
+  { content: "会议室的隔音棉要加厚，不能像现在这样，隔壁打电话这边听得一清二楚。", source: "recording", imp: 0.8 },
+  { content: "天花板决定不吊顶了，直接喷黑，把管线露出来，这样层高能显高一点。", source: "manual", imp: 0.6 },
+  { content: "检查水电走线，发现工人在我的工位下面少留了一个地插，赶紧让他们返工。", source: "manual", imp: 0.9 },
+  
+  // --- Phase 2: 选材与灯光 (2-3周前) ---
+  { content: "灯光的显色指数 (CRI) 必须达到 Ra95 以上，不然我们在公司看色板会有色差。", source: "manual", imp: 0.9 },
+  { content: "试了五个色温，最后定了 3500K，比 4000K 温馨，比 3000K 精神。", source: "recording", imp: 0.7 },
+  { content: "去建材市场看乳胶漆，佐敦的那个‘复古灰’涂出来有点发蓝，得换个中性灰。", source: "manual", imp: 0.8 },
+  { content: "卫生间的五金件不能省，一定要买哑光黑的，指纹残留少。", source: "manual", imp: 0.6 },
+  { content: "前台的 Logo 墙打算用不锈钢拉丝工艺，背发光，显得科技感强一点。", source: "recording", imp: 0.7 },
+  { content: "茶水间的台面选了岩板，虽然贵点，但是耐造，不怕咖啡渍渗进去。", source: "manual", imp: 0.6 },
+  { content: "窗帘选了蜂巢帘，隔热效果好，而且收起来的时候不占地方。", source: "manual", imp: 0.5 },
+  
+  // --- Phase 3: 家具与软装 (1-2周前) ---
+  { content: "Herman Miller 的人体工学椅到了，试坐了一下，腰部支撑果然名不虚传。", source: "manual", imp: 0.9 },
+  { content: "为了省钱，升降桌的桌腿在 1688 上买的，桌面找木工厂定制的，便宜一半。", source: "recording", imp: 0.8 },
+  { content: "正在设计展示架，要留出足够的高度放我们的原型机和手板。", source: "manual", imp: 0.7 },
+  { content: "Della 买了很多绿萝和龟背竹，说是要净化甲醛，感觉公司快变植物园了。", source: "recording", imp: 0.6 },
+  { content: "投影仪的幕布选了抗光幕，这样白天开会也不用拉全黑的窗帘。", source: "manual", imp: 0.7 },
+  { content: "休息区买了个懒人沙发，午休的时候可以躺平，希望老板不要有意见。", source: "recording", imp: 0.5 },
+  { content: "门禁系统决定用人脸识别，省得带卡了，直接刷脸进门。", source: "manual", imp: 0.6 },
+  
+  // --- Phase 4: 收尾与验收 (最近1周) ---
+  { content: "今天做甲醛检测，数值 0.06，勉强合格，还得继续开窗通风。", source: "manual", imp: 0.9 },
+  { content: "保洁阿姨打扫得不够干净，玻璃上全是水印，得找专业的开荒保洁。", source: "recording", imp: 0.7 },
+  { content: "网络布线终于搞定了，全屋 WiFi 6 覆盖，测速跑满千兆，爽。", source: "manual", imp: 0.8 },
+  { content: "把我的高达模型和设计奖杯搬到了新工位上，终于有点归属感了。", source: "manual", imp: 0.6 },
+  { content: "发现茶水间的冰箱尺寸买大了，凸出来一截，逼死强迫症。", source: "recording", imp: 0.7 },
+  { content: "正在写搬家指南，告诉大家怎么打包显示器和主机。", source: "manual", imp: 0.7 },
+  { content: "新办公室的咖啡机调试好了，第一杯浓缩油脂很丰富。", source: "recording", imp: 0.6 },
+  { content: "虽然过程很痛苦，但看到这个属于我们自己的空间一点点成型，还是很有成就感。", source: "manual", imp: 1.0 }
+];
+
+// --- 生成函数 ---
+export const generateRenovationStardust = (): StardustRecord[] => {
+  const projectID = "project-4"; // 关联到 "新公司装修项目"
+  const now = Date.now();
+  const oneMonth = 30 * 24 * 60 * 60 * 1000; 
+
+  return rawRenovationData.map((item, index) => {
+    // 线性分布在过去30天，模拟装修进度
+    // index 0 是最早的 (30天前), index 29 是最近的
+    const progress = 1 - (index / rawRenovationData.length); 
+    const timeOffset = progress * oneMonth;
+    const timestamp = now - timeOffset;
+
+    return {
+      id: uuidv4(),
+      content: item.content,
+      title: item.content.length > 20 ? item.content.substring(0, 20) + "..." : item.content,
+      category: "CAREER", // 装修属于工作环境
+      importance: item.imp,
+      created_at: timestamp,
+      updated_at: timestamp,
+      source_type: item.source as "recording" | "manual",
+      project_id: projectID,
+      metadata: { 
+        location: "New Office Site",
+        tags: ["Renovation", "Admin", "Design Studio"]
+      }
+    };
+  });
+};

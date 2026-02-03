@@ -1,0 +1,96 @@
+import { v4 as uuidv4 } from 'uuid';
+
+interface StardustRecord {
+  id: string;
+  content: string;
+  title: string;
+  category: "CAREER" | "GROWTH" | "FAMILY" | "LEISURE" | "SOCIAL" | "HEALTH" | "WEALTH";
+  importance: number;
+  created_at: number;
+  updated_at: number;
+  source_type: "recording" | "manual";
+  metadata: Record<string, unknown>;
+  project_id?: string;
+}
+
+// 40条广东春节出游核心素材
+// 时间逻辑：涵盖了从"一个月前开始规划"到"今天(2月3日)购买物资"的过程
+const rawTravelData = [
+  // --- 1. 顺德美食朝圣计划 (Shunde Food Trip) ---
+  { content: "看了三个博主的攻略，顺德的‘桑拿鱼’必须去吃那家巷子里的老店，不能去网红店。", source: "manual", imp: 0.9 },
+  { content: "记得带上消化药，这次去顺德是一天五顿的节奏，早茶、午饭、下午茶、晚饭、宵夜。", source: "recording", imp: 0.8 },
+  { content: "Della 说想吃陈村粉，但是要那种薄得像纸一样的，得提前打电话问老板有没有。", source: "manual", imp: 0.7 },
+  { content: "双皮奶是吃热的还是冷的？这是一个严肃的问题，我觉得热的奶香味更足。", source: "recording", imp: 0.6 },
+  { content: "为了吃那家煲仔饭，可能要排队两小时，得把 Switch 带上打发时间。", source: "manual", imp: 0.7 },
+  { content: "顺德的民居建筑很有意思，特别是那些镬耳屋的线条，非常适合用长焦拍局部特写。", source: "manual", imp: 0.8 },
+  { content: "订到了大良的一家民宿，是由老糖厂改造的，保留了工业遗迹的风格，很酷。", source: "manual", imp: 0.9 },
+  { content: "听说顺德鱼生要做得好，放血是关键，想去后厨看看他们的刀工（虽然大概率不让进）。", source: "recording", imp: 0.7 },
+  { content: "买了新的大疆 Pocket 3，这次去顺德主要用来拍第一视角的吃播素材。", source: "manual", imp: 0.8 },
+  { content: "提醒 Joe 别开车去步行街，那边春节期间肯定封路，找个外围停车场骑车进去。", source: "recording", imp: 0.7 },
+
+  // --- 2. 佛山传统文化与醒狮 (Foshan Culture) ---
+  { content: "今年一定要去祖庙看醒狮表演，听说有那种高桩狮，动作难度很大。", source: "manual", imp: 0.9 },
+  { content: "想拍一组‘南狮’的特写，狮头的配色和扎作工艺简直是民间艺术的巅峰。", source: "manual", imp: 0.85 },
+  { content: "佛山的岭南天地虽然商业化了点，但是旧建筑的修复做得真不错，砖雕细节保留得很好。", source: "recording", imp: 0.7 },
+  { content: "在小红书上看到一个佛山的陶瓷工作室，可以自己拉胚，想去做个杯子。", source: "manual", imp: 0.6 },
+  { content: "给家里的小侄子买个小狮头当礼物，让他感受一下广东的年味。", source: "manual", imp: 0.7 },
+  { content: "晚上去千灯湖看灯光秀，不知道需不需要预约，得查一下公众号。", source: "recording", imp: 0.6 },
+  { content: "研究了一下咏春拳的木人桩，结构设计很巧妙，力学传导很科学。", source: "manual", imp: 0.7 },
+  { content: "可能会去梁园逛逛，岭南园林的布局讲究‘移步换景’，跟苏州园林感觉完全不同。", source: "manual", imp: 0.8 },
+  { content: "佛山的盲公饼当手信不错，包装设计虽然老土，但味道确实经典。", source: "recording", imp: 0.6 },
+  { content: "如果下雨的话，醒狮表演会取消吗？得备一套雨天的 Plan B。", source: "manual", imp: 0.7 },
+
+  // --- 3. 广州大本营与花市 (Guangzhou Base) ---
+  { content: "‘行花街’是指定动作，今年想去越秀西湖花市挤一挤，感受一下人贴人的温度。", source: "manual", imp: 0.9 },
+  { content: "要买一盆大吉大利的年桔，但是不知道车尾箱能不能塞得下。", source: "recording", imp: 0.7 },
+  { content: "白天鹅宾馆的早茶已经排到三个月后了？太夸张了，只能去陶陶居碰碰运气。", source: "manual", imp: 0.8 },
+  { content: "想去拍一下广州塔下的有轨电车，春天开进花海的那种感觉。", source: "manual", imp: 0.8 },
+  { content: "永庆坊那边有些非遗展览，打算去看看广彩的制作过程，找找设计灵感。", source: "recording", imp: 0.75 },
+  { content: "过年期间广州就像个空城，这时候去珠江新城开车最爽，完全不堵。", source: "manual", imp: 0.6 },
+  { content: "给老妈准备了几个红包封，选了那种烫金镂空设计的，质感很好。", source: "manual", imp: 0.7 },
+  { content: "东山口的那些红砖洋房，配上春节的灯笼，红配红会不会太俗？去看看便知。", source: "recording", imp: 0.7 },
+  { content: "想去沙面喝个咖啡，看着江边的老建筑发呆，这才是假期的正确打开方式。", source: "manual", imp: 0.8 },
+  { content: "要不要去长隆野生动物园？虽然人多，但是想去拍拍白虎。", source: "recording", imp: 0.6 },
+
+  // --- 4. 自驾物流与装备 (Logistics & Gear) ---
+  { content: "检查了一下车的轮胎，胎压有点低，出发前得去补个气。", source: "manual", imp: 0.8 },
+  { content: "买了车载的充气床垫，万一在高速上堵死了，可以直接躺平睡觉。", source: "manual", imp: 0.85 },
+  { content: "充电桩在春节期间肯定要排队，得规划好路线，尽量在服务区之外充电。", source: "recording", imp: 0.9 },
+  { content: "把 Ricoh GR3x 的电池充满，这台机子是扫街神器，单反太重了不想带。", source: "manual", imp: 0.9 },
+  { content: "准备了一个车载急救包，感冒药、肠胃药、创可贴都得带齐。", source: "manual", imp: 0.7 },
+  { content: "做了一张 Excel 预算表，这次出游预计花费 5000 块，主要是吃和住。", source: "manual", imp: 0.7 },
+  { content: "买了一箱矿泉水和红牛扔车上，长途驾驶防疲劳。", source: "recording", imp: 0.6 },
+  { content: "车里的 CarPlay 有时候会断连，买了一根高质量的数据线备用。", source: "manual", imp: 0.5 },
+  { content: "Joe 说他带了无人机，但是广州市区禁飞，只能去郊区飞一下。", source: "recording", imp: 0.7 },
+  { content: "最后检查一遍证件，身份证、驾驶证都不能少，不然连酒店都住不了。", source: "manual", imp: 1.0 }
+];
+
+// --- 生成函数 ---
+export const generateTravelStardust = (): StardustRecord[] => {
+  const projectID = "project-3"; // 关联到 "过年广东出游"
+  const now = Date.now(); // 2026-02-03
+  const planningPhase = 30 * 24 * 60 * 60 * 1000; // 过去30天
+
+  return rawTravelData.map((item, index) => {
+    // 随机分布在过去30天内，模拟筹备期的过程
+    // 越靠前的index越接近现在（越紧急）
+    const timeOffset = Math.random() * planningPhase; 
+    const timestamp = now - timeOffset;
+
+    return {
+      id: uuidv4(),
+      content: item.content,
+      title: item.content.length > 20 ? item.content.substring(0, 20) + "..." : item.content,
+      category: "LEISURE", // 大部分归类为休闲，部分可以是 WEALTH (预算) 或 FAMILY
+      importance: item.imp,
+      created_at: timestamp,
+      updated_at: timestamp,
+      source_type: item.source as "recording" | "manual",
+      project_id: projectID,
+      metadata: { 
+        location: index < 10 ? "Shunde" : (index < 20 ? "Foshan" : "Guangzhou"),
+        tags: ["Travel", "CNY", "Guangdong"]
+      }
+    };
+  });
+};

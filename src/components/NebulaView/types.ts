@@ -1,0 +1,123 @@
+/**
+ * 2D Canvas 星云渲染 - 类型定义
+ * 
+ * 用于 NebulaCanvas 组件的内部数据结构
+ */
+
+import type { NebulaPoint } from "@/lib/db/local-data";
+import type { CategoryId } from "@/lib/categories";
+
+/**
+ * 2D 粒子点 - 用于 Canvas 渲染
+ */
+export interface NebulaPoint2D {
+  // 基础属性 (从 NebulaPoint 复制)
+  id: string;
+  type: NebulaPoint["type"];
+  content: string;
+  title?: string;
+  category: CategoryId;
+  timestamp: number;
+  importance: number;
+  shape?: NebulaPoint["shape"];
+  projectIds: string[];
+  
+  // 2D 渲染属性
+  x: number;           // 当前 x 坐标
+  y: number;           // 当前 y 坐标
+  originX: number;     // 原始 x 坐标 (有机分布)
+  originY: number;     // 原始 y 坐标 (有机分布)
+  targetX: number;     // 目标 x 坐标 (动画用)
+  targetY: number;     // 目标 y 坐标 (动画用)
+  size: number;        // 粒子大小
+  baseOpacity: number; // 基础透明度
+  opacity: number;     // 当前透明度
+  targetOpacity: number; // 目标透明度 (动画用)
+  pulseOffset: number; // 脉冲动画偏移
+  color: string;       // 类别颜色
+}
+
+/**
+ * 话题簇 - 包含多个相关点
+ */
+export interface NebulaCluster {
+  id: string;
+  label: string;
+  category: CategoryId;
+  categoryLabel: string;
+  color: string;
+  x: number;
+  y: number;
+}
+
+/**
+ * 类别锚点元数据
+ */
+export interface CategoryMeta {
+  id: CategoryId;
+  label: string;
+  color: string;
+  x: number;
+  y: number;
+}
+
+/**
+ * 相机状态
+ */
+export interface CameraState {
+  x: number;
+  y: number;
+  zoom: number;
+}
+
+/**
+ * 目标相机状态
+ */
+export interface TargetCameraState {
+  x: number;
+  y: number;
+  zoom: number;
+}
+
+/**
+ * 鼠标状态
+ */
+export interface MouseState {
+  isDown: boolean;
+  lastX: number;
+  lastY: number;
+  lastClickX: number;
+  lastClickY: number;
+}
+
+/**
+ * 视图模式
+ */
+export type ZoomLevel = "Overview" | "Detailed";
+
+/**
+ * 渲染引擎配置
+ */
+export interface NebulaEngineConfig {
+  pointCount: number;
+  baseRadius: number;
+  clusterRadius: number;
+  zoomMin: number;
+  zoomMax: number;
+  zoomSpeed: number;
+  lerpFactor: number;
+  particleSpeed: number;
+  searchClusterRadius: number;
+  hitRadiusBase: number;
+}
+
+/**
+ * 生成 2D 点数据的配置
+ */
+export interface PointGeneratorConfig {
+  categoryCount: number;
+  clustersPerCategory: number;
+  pointsPerCluster: number;
+  spreadBase: number;
+  spreadVariance: number;
+}

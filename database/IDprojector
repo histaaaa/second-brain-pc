@@ -1,0 +1,139 @@
+import { v4 as uuidv4 } from 'uuid';
+
+interface StardustRecord {
+  id: string;
+  content: string;
+  title: string;
+  category: "CAREER" | "GROWTH" | "FAMILY" | "LEISURE" | "SOCIAL" | "HEALTH" | "WEALTH";
+  importance: number;
+  created_at: number;
+  updated_at: number;
+  source_type: "recording" | "manual";
+  metadata: Record<string, unknown>;
+  project_id?: string;
+}
+
+// 80条投影仪项目核心素材 (时间倒序排列逻辑：数组前部是最近的，后部是6个月前的)
+const rawProjectorData = [
+  // --- 阶段四：T1 试产与优化 (最近 1 个月) ---
+  { content: "T1 样机出来的效果还不错，但是顶盖的接缝处稍微有点刮手，让工厂加一道打磨工序。", source: "manual", imp: 0.9 },
+  { content: "散热风扇全速运转时的噪音还是有 35dB，超过了 Joe 定的标准，得换个扇叶形状试试。", source: "recording", imp: 0.8 },
+  { content: "Della 说现在的深灰色喷漆良率太低，容易有积油，建议换成蚀纹原本色。", source: "recording", imp: 0.7 },
+  { content: "测试了投影仪在不同角度的梯形校正，现在的自动对焦速度有点慢，软件组得背锅。", source: "manual", imp: 0.6 },
+  { content: "包装盒的设计打样回来了，内托的纸浆材质支撑力不够，机器有点晃动。", source: "recording", imp: 0.7 },
+  { content: "镜头盖的滑轨手感太涩了，阻尼脂的号数不对，要换成高粘度的。", source: "manual", imp: 0.8 },
+  { content: "昨天通宵改了底座的支架设计，终于解决了 15 度仰角时的重心不稳问题。", source: "manual", imp: 0.9 },
+  { content: "给老板演示的时候，HDMI 接口居然松了，还好带了备用线，一定要查一下母座的公差。", source: "recording", imp: 0.85 },
+  { content: "正在写外观专利的申请文档，把那几个独特的散热格栅特征重点描述了一下。", source: "manual", imp: 0.7 },
+  { content: "那个红色的电源指示灯太刺眼了，晚上看电影会分心，得加个导光柱柔化一下。", source: "recording", imp: 0.6 },
+  { content: "工厂那边说底部铭牌的激光镭雕位置不仅容易磨损，还不好定位，想改到背面。", source: "manual", imp: 0.5 },
+  { content: "把脚垫的材质从橡胶换成了硅胶，防滑效果好多了，而且不粘灰。", source: "manual", imp: 0.6 },
+  { content: "跟结构确认了，还是得加两个螺丝柱，不然跌落测试肯定过不了，外观面要做个装饰件遮丑。", source: "recording", imp: 0.8 },
+
+  // --- 阶段三：手板验证与 CMF (2-3 个月前) ---
+  { content: "刚收到的 CNC 手板，表面喷砂的目数太粗了，像磨砂膏一样，我要的是细腻的亲肤感。", source: "manual", imp: 0.9 },
+  { content: "为了这颗特殊纹理的布艺面网，跑了三家布料供应商，终于找到了耐高温不发黄的。", source: "recording", imp: 0.8 },
+  { content: "光机的散热片太大，导致原本设计的流线型外壳必须隆起一块，得重新画曲面。", source: "manual", imp: 0.9 },
+  { content: "Della 建议把金属网罩换成塑料仿金属工艺，成本能降 15%，但我担心质感会变得廉价。", source: "recording", imp: 0.7 },
+  { content: "今天试了五种不同的灰色，最后选了潘通 Cool Gray 9C，比较耐看。", source: "manual", imp: 0.7 },
+  { content: "侧面的进风口设计灵感来自跑车的进气格栅，但是开模会有倒扣，得拆件。", source: "recording", imp: 0.8 },
+  { content: "为了追求极致的极简，想把实体按键全去掉只留触摸，但 Joe 说盲操体验会很差。", source: "recording", imp: 0.6 },
+  { content: "第一次组装结构手板，发现内部线束太乱了，顶到了外壳，必须设计理线槽。", source: "manual", imp: 0.8 },
+  { content: "透镜前面的保护玻璃透过率不够，画面有点发灰，得换镀增透膜的玻璃。", source: "manual", imp: 0.7 },
+  { content: "正在做 User Journey Map，发现用户在露营场景下使用投影仪的痛点是‘没地方摆’。", source: "recording", imp: 0.75 },
+  { content: "考虑要不要做一个皮质的提手？这样便携属性更强，也更有生活气息。", source: "manual", imp: 0.8 },
+  { content: "开会讨论了半天，最后决定砍掉内置电池的版本，先做插电版，保证体积优势。", source: "recording", imp: 0.9 },
+  { content: "用 KeyShot 渲染了一组场景图，放在床头柜和书架上的效果，发给市场部预热。", source: "manual", imp: 0.7 },
+  { content: "那个 Logo 的丝印位置调整了三次，最后决定放在角落，低调一点。", source: "manual", imp: 0.5 },
+
+  // --- 阶段二：3D 建模与结构堆叠 (3-4 个月前) ---
+  { content: "Rhino 建摸遇到大问题，顶面的双曲面衔接一直不顺，斑马纹断了，得重构。", source: "manual", imp: 0.8 },
+  { content: "结构工程师说我的 ID 方案会导致拔模角不够，至少要留 3 度，不然脱不了模。", source: "recording", imp: 0.8 },
+  { content: "今天一直在调风道的流体仿真，发现热风会吹到用户手上，出风口得改到后面。", source: "manual", imp: 0.9 },
+  { content: "光机供应商发来的 3D 图档比规格书上大了 2mm，整个堆叠要推倒重来，崩溃。", source: "recording", imp: 1.0 },
+  { content: "想做一个‘悬浮’的视觉效果，通过底部的内收设计让机身看起来更轻薄。", source: "manual", imp: 0.7 },
+  { content: "Della 提醒我注意安规距离，电源板离外壳太近了，过不了 UL 认证。", source: "recording", imp: 0.8 },
+  { content: "把所有的螺丝孔都藏在了脚垫下面，整机外观面看不到一颗螺丝，强迫症舒适。", source: "manual", imp: 0.8 },
+  { content: "在 SolidWorks 里装配检查干涉，发现喇叭的磁钢吸住了铁网，得留安全间距。", source: "manual", imp: 0.7 },
+  { content: "为了声音的立体感，跟声学工程师讨论了很久音腔的容积，最后牺牲了一点散热空间。", source: "recording", imp: 0.75 },
+  { content: "尝试了参数化设计来做前面的散热孔，Grasshopper 算出来的纹理很像水波纹，很酷。", source: "manual", imp: 0.85 },
+  { content: "遥控器的造型也得配套，想做一个圆润的卵石形状，握持感更好。", source: "manual", imp: 0.6 },
+  { content: "主板的接口布局太紧凑了，两个 USB 插头可能会打架，得拉开距离。", source: "recording", imp: 0.7 },
+  { content: "Joe 说如果要加云台功能，转轴的寿命测试至少要过 5000 次。", source: "recording", imp: 0.6 },
+
+  // --- 阶段一：概念草图与竞品分析 (5-6 个月前) ---
+  { content: "刚接到新项目 Brief，要做一款‘融入家居’的投影仪，不要像传统的办公设备那样冰冷。", source: "manual", imp: 0.9 },
+  { content: "在 Pinterest 上找了一天的 Mood Board，主要参考了包豪斯风格和一些复古家电。", source: "manual", imp: 0.7 },
+  { content: "分析了极米和坚果的竞品，发现大家都在卷亮度，我们可以卷一下‘氛围感’。", source: "recording", imp: 0.8 },
+  { content: "画了第一轮草图，有方盒子的，有圆柱体的，老板似乎更喜欢圆润一点的风格。", source: "manual", imp: 0.8 },
+  { content: "在想能不能把投影仪做成一个‘灯’？不用的时候就是个氛围灯。", source: "recording", imp: 0.9 },
+  { content: "去商场实地看了实物，发现很多投影仪的塑料感太强了，我们一定要在材质上下功夫。", source: "recording", imp: 0.7 },
+  { content: "Joe 给我科普了 DLP 和 LCD 光机的区别，DLP 对比度好但贵，LCD 便宜但体积大。", source: "manual", imp: 0.6 },
+  { content: "手绘板的笔头磨秃了，画得太起劲了，感觉找到了当年做毕设的激情。", source: "manual", imp: 0.6 },
+  { content: "考虑到散热，是不是可以把散热鳍片直接做成外观的一部分？像摩托车的发动机那样。", source: "recording", imp: 0.85 },
+  { content: "Della 说如果我们想在 4 月上市，现在就得定下大方向，时间表倒推很紧。", source: "manual", imp: 0.8 },
+  { content: "想做一个可以 360 度旋转的投射角度，这样用户就可以躺在床上投天花板看。", source: "recording", imp: 0.95 },
+  { content: "看了博朗早期的设计，Dieter Rams 的设计原则真的是永不过时。", source: "manual", imp: 0.7 },
+  { content: "团队 Brainstorming，有人提议加个香薰功能，被我否了，太伪需求了。", source: "recording", imp: 0.6 },
+  { content: "第一版 ID 评审被批得体无完肤，说造型太像蓝牙音箱了，没有识别度。", source: "manual", imp: 0.9 },
+  { content: "通宵改方案，把线条做得更硬朗了一些，加了一点 Cyberpunk 的元素。", source: "manual", imp: 0.8 },
+
+  // --- 补充细节与日常 (穿插在各阶段) ---
+  { content: "今天在工厂吃了顿猪脚饭，跟模具师傅聊了半天，学到了很多分模的野路子。", source: "manual", imp: 0.5 },
+  { content: "Della 真是砍价高手，把那款进口 ABS 材料的价格压下来了 10%。", source: "recording", imp: 0.6 },
+  { content: "投影仪的防尘网如果做成可拆洗的，结构会复杂很多，但不做又容易积灰。", source: "recording", imp: 0.7 },
+  { content: "为了测试亮度，把会议室灯全关了，差点睡着。", source: "manual", imp: 0.4 },
+  { content: "3D 打印机又堵头了，清洗喷头弄了一手料，还好打印出来的尺寸是对的。", source: "manual", imp: 0.5 },
+  { content: "Joe 这种工科男的审美有时候真让人头大，他非要加一圈 RGB 灯带。", source: "recording", imp: 0.6 },
+  { content: "看了一下B站上的评测视频，现在的用户对噪音真的很敏感，静音是刚需。", source: "manual", imp: 0.7 },
+  { content: "突然想到一个点子，能不能用磁吸的方式接电源线？防止绊倒摔机。", source: "recording", imp: 0.8 },
+  { content: "把之前的草图整理了一下，准备放在作品集里，虽然有些方案没被选中，但挺有意思的。", source: "manual", imp: 0.6 },
+  { content: "今天试了下在户外用充电宝供电，亮度衰减挺厉害的，电源管理得优化。", source: "recording", imp: 0.7 },
+  { content: "跟老板汇报 ID 进度，他盯着那个金属旋钮看了半天，说这个质感很到位。", source: "manual", imp: 0.9 },
+  { content: "为了找灵感，去看了场《沙丘》，那个扑翼机的设计美学真的绝了。", source: "manual", imp: 0.6 },
+  { content: "Della 送了我一个色卡本，说是最新的流行色趋势，很有参考价值。", source: "recording", imp: 0.6 },
+  { content: "虽然是实习转正后的第一个项目，但感觉自己已经是个老手了，流程都很熟。", source: "manual", imp: 0.8 },
+  { content: "光机镜头前面的饰圈如果做成金色的，会不会太土豪了？还是银色保险。", source: "manual", imp: 0.5 },
+  { content: "终于把那个复杂的曲面导角修顺了，G2 连续的光影效果就是不一样。", source: "manual", imp: 0.85 },
+  { content: "今天收到供应商寄来的五金件样品，公差控制得不错，可以直接上机试装。", source: "recording", imp: 0.7 },
+  { content: "为了这个项目，已经连续两周没在 10 点前回过家了，但看到样机的那一刻由于值得。", source: "manual", imp: 0.9 },
+  { content: "记录一下：投影比是 1.2:1，这意味着离墙 2.6 米才能投 100 寸。", source: "recording", imp: 0.7 },
+  { content: "最后的最后，希望这款投影仪能成为我的代表作。", source: "manual", imp: 1.0 }
+];
+
+// --- 自动补全函数：生成 6 个月跨度的投影仪数据 ---
+export const generateProjectorStardust = (): StardustRecord[] => {
+  const projectID = "project-2"; // 关联到 "投影仪ID项目"
+  const now = Date.now();
+  const sixMonths = 180 * 24 * 60 * 60 * 1000; // 6个月的时间戳跨度
+
+  return rawProjectorData.map((item, index) => {
+    // 关键算法：
+    // 数组前面的数据 (index 0) 是最近的 -> timestamp 接近 now
+    // 数组后面的数据 (index 79) 是很久前的 -> timestamp 接近 now - 6 months
+    // 使用线性插值 + 随机抖动 (Jitter) 让时间分布更自然
+    
+    const progress = index / rawProjectorData.length; // 0 到 1
+    const baseOffset = progress * sixMonths;
+    const randomJitter = (Math.random() - 0.5) * (24 * 60 * 60 * 1000) * 2; // +/- 2天的抖动
+    
+    let timestamp = now - baseOffset + randomJitter;
+    // 确保不超过当前时间
+    if (timestamp > now) timestamp = now;
+
+    return {
+      id: uuidv4(),
+      content: item.content,
+      title: item.content.length > 25 ? item.content.substring(0, 25) + "..." : item.content,
+      category: "CAREER",
+      importance: item.imp,
+      created_at: timestamp,
+      updated_at: timestamp,
+      source_type: item.source as "recording" | "manual",
+      project_id: projectID,
+      metadata: item.source === "recording" 
+        ? { duration: Math.floor(Math.random() * 900) + 60, device: "Flux Prototype V1" } 
+        : { device: "MacBook Pro", app: "Rhino 7" } // 模拟设计师常用软件
+    };
+  });
+};

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>数据诊断</title>
+    <style>
+        body { font-family: monospace; background: #000; color: #0f0; padding: 20px; }
+        pre { background: #111; padding: 15px; border-radius: 8px; overflow-x: auto; }
+        .success { color: #0f0; }
+        .error { color: #f00; }
+        .info { color: #0ff; }
+    </style>
+</head>
+<body>
+    <h1>🔍 第二大脑数据诊断</h1>
+    <p>请打开浏览器的开发者工具 (F12) 查看控制台输出...</p>
+    <pre id="output">正在加载...</pre>
+
+    <script type="module">
+        // 由于 ES Module 在 file:// 协议下有 CORS 限制
+        // 请复制以下代码到应用的开发者工具控制台运行：
+        const code = `
+// ============ 在控制台运行此代码 ============
+(async () => {
+  try {
+    // 使用 fetch 获取数据
+    const response = await fetch('/api/points');
+    if (!response.ok) throw new Error('API 不可用');
+    const points = await response.json();
+    
+    // 统计各类别数量
+    const categoryCount = {};
+    points.forEach(p => {
+      categoryCount[p.category] = (categoryCount[p.category] || 0) + 1;
+    });
+    
+    console.log('========== 数据诊断 ==========');
+    console.log('总点数:', points.length);
+    console.log('\\n各类别统计:');
+    
+    const sorted = Object.entries(categoryCount).sort((a, b) => b[1] - a[1]);
+    sorted.forEach(([cat, count]) => {
+      console.log('  ' + cat + ': ' + count);
+    });
+    
+    console.log('\\n=============================');
+  } catch (err) {
+    console.error('诊断失败:', err);
+  }
+})();
+// ==========================================
+`;
+        
+        document.getElementById('output').textContent = code;
+        console.log('%c🔍 请在控制台查看诊断结果', 'font-size: 16px; color: #0ff;');
+        console.log(code);
+    </script>
+</body>
+</html>

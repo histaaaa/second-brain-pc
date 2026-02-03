@@ -1,0 +1,135 @@
+import { v4 as uuidv4 } from 'uuid'; // 如果你没有 uuid 库，可以用简单的 Math.random 代替
+
+// 定义星尘数据结构 (参考你的 Schema)
+interface StardustRecord {
+  id: string;
+  content: string;
+  title: string;
+  category: "CAREER" | "GROWTH" | "FAMILY" | "LEISURE" | "SOCIAL" | "HEALTH" | "WEALTH";
+  importance: number;
+  created_at: number;
+  updated_at: number;
+  source_type: "recording" | "manual";
+  metadata: Record<string, unknown>;
+  project_id?: string; // 可选关联
+}
+
+// 80条核心素材库 (包含内容、来源类型、重要性预设)
+const rawProjectData = [
+  // --- 1. 硬件与工业设计 (Hardware & ID) ---
+  { content: "今天试戴了最新的手环 3D 打印模型，手腕内侧的 R 角还是有点顶骨头，需要倒大一点。", source: "manual", imp: 0.8 },
+  { content: "觉得现在的卡扣设计太复杂了，能不能改成磁吸的？像 Apple Watch 那个米兰尼斯表带一样方便。", source: "recording", imp: 0.6 },
+  { content: "Joe 建议把麦克风阵列移到手环的外侧，说这样可以减少衣服摩擦的噪音，明天测试一下。", source: "manual", imp: 0.7 },
+  { content: "查了一下 300mAh 软包电池的尺寸，勉强能塞进现在的模具，但散热可能会有问题。", source: "recording", imp: 0.9 },
+  { content: "如果不做屏幕，只留一个呼吸灯，用户怎么知道正在录音？得加一个触觉反馈。", source: "recording", imp: 0.85 },
+  { content: "正在画手环的 CMF 方案，想要一种‘液态金属’的质感，就像终结者里那种。", source: "manual", imp: 0.7 },
+  { content: "测试了 Raspberry Pi Zero 跑 Whisper 模型，延迟还是太高了，必须上云端处理。", source: "manual", imp: 0.8 },
+  { content: "外壳材质如果用亲肤硅胶，夏天会不会出汗发粘？要不要考虑氟橡胶？", source: "recording", imp: 0.6 },
+  { content: "重量必须控制在 25g 以内，不然用户做不到 24 小时佩戴，睡觉肯定会摘下来。", source: "recording", imp: 0.95 },
+  { content: "那个圆形的呼吸灯效果，我想让它模仿人的心跳频率，而不是机械的闪烁。", source: "manual", imp: 0.6 },
+  { content: "看了一下 Humane AI Pin 的拆解视频，他们的散热方案做得真激进，我们可以参考一下。", source: "recording", imp: 0.7 },
+  { content: "跟工厂确认了，开模具至少要 3 周，赶不上月底的演示了，只能先用 CNC 打样。", source: "manual", imp: 0.9 },
+  { content: "要在手环侧面加一个实体按键吗？用来标记‘高光时刻’，一键生成结晶。", source: "recording", imp: 0.75 },
+  { content: "Arduino 那个震动马达的反馈太松散了，得换成线性马达。", source: "manual", imp: 0.5 },
+  { content: "能不能做成模块化的？比如电池是可以拆卸的，像换弹夹一样。", source: "recording", imp: 0.6 },
+  { content: "Della 觉得黑色的样机太直男了，建议加一个暖白色或者沙色的版本。", source: "manual", imp: 0.5 },
+  { content: "今晚把 PCB 的堆叠重新排了一下，终于把厚度压到了 8mm。", source: "manual", imp: 0.85 },
+  { content: "还是担心防水问题，Type-C 接口那里如果不做防水处理，运动出汗很容易坏。", source: "recording", imp: 0.8 },
+  { content: "如果硬件上加一个体温传感器，是不是就能结合情绪分析了？比如生气时体温升高。", source: "recording", imp: 0.6 },
+  { content: "草图画了十几版，还是觉得‘莫比乌斯环’那个造型最有寓意，代表无限的记忆。", source: "manual", imp: 0.9 },
+
+  // --- 2. 软件前端与 Vibecoding (Software & Frontend) ---
+  { content: "Vibecoding 的效率太惊人了，刚才用 Cursor 几分钟就生成了星云的粒子效果。", source: "manual", imp: 0.8 },
+  { content: "Next.js 的 App Router 还是有点坑，昨天那个 Server Component 报错查了半天。", source: "recording", imp: 0.6 },
+  { content: "星云模式下的粒子数设到 1000 个有点卡，得用 Three.js 的 InstancedMesh 来优化性能。", source: "manual", imp: 0.85 },
+  { content: "想要那种‘玻璃拟态’的 UI 风格，背景要有很强的模糊，像 macOS 的侧边栏。", source: "recording", imp: 0.7 },
+  { content: "Framer Motion 的弹簧动画参数调了一下午，终于有那种‘果冻’般的 Q 弹感了。", source: "manual", imp: 0.6 },
+  { content: "移动端的适配是个大问题，3D 画布在手机上如果不锁死缩放，很容易误触。", source: "recording", imp: 0.75 },
+  { content: "正在研究怎么把 Nomic Atlas 的那个散点图效果复刻过来，那个缩放的平滑度无敌。", source: "manual", imp: 0.8 },
+  { content: "Tailwind CSS 写深色模式真是太爽了，配色表定好了之后开发速度飞快。", source: "recording", imp: 0.7 },
+  { content: "要把‘项目’做成从星云里抽出来的线，这个动画逻辑稍微有点复杂，得算好贝塞尔曲线。", source: "manual", imp: 0.9 },
+  { content: "今天把 React Three Fiber 的文档又过了一遍，发现可以用 shaderMaterial 做发光粒子。", source: "recording", imp: 0.7 },
+  { content: "数据可视化这边，到底是用 Canvas 还是 WebGL？考虑到未来数据量可能上万，还是 WebGL 吧。", source: "manual", imp: 0.85 },
+  { content: "Cursor 写的代码虽然快，但是组件拆分得不够细，后期维护还得我自己重构一下。", source: "recording", imp: 0.6 },
+  { content: "那个‘透镜’效果，本质上就是改变鼠标周围粒子的 scale 和 color，逻辑通了。", source: "manual", imp: 0.7 },
+  { content: "需要找一套好看的霓虹配色方案，赛博朋克风但不能太刺眼，要有高级感。", source: "recording", imp: 0.6 },
+  { content: "PWA 的配置搞定了，现在安装到桌面上完全像个原生应用，去掉了浏览器的地址栏。", source: "manual", imp: 0.8 },
+  { content: "正在写那个‘拖拽生成结晶’的交互，长按粒子时的吸附效果还得再调教一下。", source: "recording", imp: 0.75 },
+  { content: "把 Zustand 装上了，用来管理‘星云模式’和‘归档模式’的状态切换，非常丝滑。", source: "manual", imp: 0.7 },
+  { content: "Joe 问能不能加个快捷键，比如按空格键直接唤起全局搜索，像 Raycast 那样。", source: "recording", imp: 0.6 },
+  { content: "字体选了 Inter，但是在 3D 空间里渲染出来的文字边缘有点锯齿，得开抗锯齿。", source: "manual", imp: 0.5 },
+  { content: "虽然主要是 Web 端，但得确保在 iPad 上的触摸体验也是好的，毕竟很多设计师用 iPad。", source: "recording", imp: 0.7 },
+
+  // --- 3. 产品定义与哲学 (Product & Philosophy) ---
+  { content: "把原始数据叫‘星尘’，处理后的叫‘结晶’，这个隐喻太棒了，完美解释了第二大脑的价值。", source: "recording", imp: 1.0 },
+  { content: "我们的核心壁垒不是录音，而是‘主动连接’。AI 必须告诉你A和B之间有什么关系。", source: "manual", imp: 0.95 },
+  { content: "‘双模态’的设计解决了我的纠结：既要有 Notion 的秩序感，也要有 Atlas 的探索感。", source: "recording", imp: 0.9 },
+  { content: "Della 说‘人物卡片’这个功能很像社交游戏里的图鉴，我觉得这个形容很贴切。", source: "recording", imp: 0.7 },
+  { content: "是不是可以引入荣格的‘阴影’概念？那些被我们遗忘的、从未回顾的记忆，就是‘阴影区’。", source: "manual", imp: 0.8 },
+  { content: "我不希望用户整天整理笔记，Flux 应该是‘无感’的，像空气一样存在。", source: "recording", imp: 0.85 },
+  { content: "时间线视图里，应该能看到‘情绪’的起伏。比如那天开会很生气，那个时间段就是红色的。", source: "manual", imp: 0.7 },
+  { content: "关于‘幻觉’，也许我们可以把 AI 的脑洞专门做一个‘Dream Mode’，让它基于事实乱联想。", source: "recording", imp: 0.6 },
+  { content: "如果不做标签系统，纯靠向量检索，会不会有些精确查找的场景覆盖不到？", source: "manual", imp: 0.75 },
+  { content: "‘结晶’的形状必须有意义。立方体代表工作，六边形代表知识，水滴代表情绪，这套视觉语言要统一。", source: "recording", imp: 0.9 },
+  { content: "一定要做‘时空胶囊’！把米兰大教堂的钟声和当时的感受打包存下来，太浪漫了。", source: "manual", imp: 0.85 },
+  { content: "搜索不应该只是出列表，应该是‘点亮星空’，这种视觉反馈带来的满足感是巨大的。", source: "recording", imp: 0.9 },
+  { content: "思考：如果我把十年的记忆都存进去，系统能不能分析出我的人格变化轨迹？", source: "manual", imp: 0.8 },
+  { content: "跟 Joe 争论了很久，他觉得应该优先做 ToDo 功能，我觉得优先做‘灵感连接’。我是设计师，我听我的。", source: "recording", imp: 0.85 },
+  { content: "隐私是个大问题。必须让用户知道，只有‘结晶’是可以分享的，‘星尘’永远私有。", source: "manual", imp: 0.9 },
+  { content: "如果能跟 HKUST 的研究结合起来就好了，比如用这个手环做人机交互的实验数据采集。", source: "recording", imp: 0.7 },
+  { content: "这不仅仅是效率工具，这是‘外挂海马体’。", source: "manual", imp: 1.0 },
+  { content: "‘项目’只是从星云里抽出来的一根线，这个交互逻辑简直是天才，打破了文件夹的限制。", source: "recording", imp: 0.95 },
+  { content: "也许可以加一个‘随机漫步’按钮，带我去看看我几年前的随机记忆，找找惊喜。", source: "manual", imp: 0.6 },
+  { content: "现在的 AI 硬件都在做助理，我想做的是‘伴侣’。", source: "recording", imp: 0.9 },
+
+  // --- 4. 团队与杂项 (Team & Misc) ---
+  { content: "下午和 Joe 对了一下 API 接口，后端数据库还是决定用 Supabase，省事。", source: "manual", imp: 0.6 },
+  { content: "Della 帮忙联系了深圳的供应链，下周二可能要去一趟工厂看板子。", source: "recording", imp: 0.7 },
+  { content: "给老板准备的 Pitch Deck 还没写完，重点要放在‘数据可视化’那个酷炫的 Demo 上。", source: "manual", imp: 0.8 },
+  { content: "今晚又要加班调 UI 了，为了 SIGGRAPH 的投稿，必须把概念图做得足够惊艳。", source: "recording", imp: 0.85 },
+  { content: "那个意大利语学习的计划被项目挤占了，得赶紧用 Flux 里的‘时间胶囊’复习一下。", source: "manual", imp: 0.6 },
+  { content: "申请 HKUST 的文书里，想把这个 Second Brain 项目作为主要的作品集案例。", source: "recording", imp: 0.8 },
+  { content: "Joe 说我不像个设计师，像个全栈工程师。这就是 Vibecoding 的力量啊。", source: "recording", imp: 0.7 },
+  { content: "办公室的网太烂了，拉取 GitHub 代码卡半天，回家再弄。", source: "manual", imp: 0.4 },
+  { content: "需要招一个实习生来帮忙整理用户访谈的录音数据，现在全靠我自己听太累了。", source: "recording", imp: 0.6 },
+  { "content": "Della 建议把产品名字从 'Flux' 改成更具象的，但我还是喜欢 Flux，代表心流和变迁。", source: "manual", imp: 0.7 },
+  { content: "记得给测试机充电，明天要带去见投资人。", source: "manual", imp: 0.7 },
+  { content: "做了一个梦，梦见星云里的点真的变成星星了，醒来赶紧记下来，这可以是开机动画。", source: "recording", imp: 0.8 },
+  { content: "Kairos Innovation 的内部分享会，大家对这个项目的期待值很高，压力山大。", source: "manual", imp: 0.7 },
+  { content: "把之前的 Python 爬虫脚本集成进来了，现在可以自动抓取我浏览过的网页作为星尘。", source: "recording", imp: 0.6 },
+  { content: "下周是 Della 生日，提醒我用 Flux 生成一张特别的‘友谊结晶’卡片送给她。", source: "manual", imp: 0.7 },
+  { content: "今天效率很高，用 PARA 法把项目文档重新归档了一遍，清爽多了。", source: "recording", imp: 0.6 },
+  { content: "发现竞品 Rewind 出了新功能，还好我们的 3D 星云护城河够深，他们做不到。", source: "manual", imp: 0.8 },
+  { content: "准备去华强北淘点传感器，看看有没有更小的 IMU 模块。", source: "recording", imp: 0.7 },
+  { content: "如果能赶在 4 月米兰设计周前做出可戴的 Prototype 就完美了，可以戴着去逛展。", source: "manual", imp: 0.9 },
+  { content: "无论如何，这个项目是我目前做过最酷的东西，它让我感觉自己在创造未来。", source: "recording", imp: 1.0 }
+];
+
+// --- 自动补全函数：生成符合 Schema 的 80 条完整数据 ---
+export const generateSecondBrainStardust = (): StardustRecord[] => {
+  const projectID = "project-1"; // 关联到 "第二大脑项目"
+  const now = Date.now();
+  const threeMonths = 90 * 24 * 60 * 60 * 1000;
+
+  return rawProjectData.map((item, index) => {
+    // 1. 随机生成过去3个月内的时间戳，越靠后的数据时间越新，模拟项目进展
+    // 使用 Math.random() 增加一点随机性，但整体保持顺序感
+    const timeOffset = Math.floor(Math.random() * threeMonths * ((80 - index) / 80));
+    const timestamp = now - timeOffset;
+
+    return {
+      id: uuidv4(), // 自动生成唯一 UUID
+      content: item.content,
+      title: item.content.length > 25 ? item.content.substring(0, 25) + "..." : item.content, // 自动截取标题
+      category: "CAREER", // 统一归类为职业发展
+      importance: item.imp,
+      created_at: timestamp,
+      updated_at: timestamp,
+      source_type: item.source as "recording" | "manual",
+      project_id: projectID, // 强关联到第二大脑项目
+      metadata: item.source === "recording" 
+        ? { duration: Math.floor(Math.random() * 600) + 30, device: "Flux Prototype V1" } 
+        : { device: "MacBook Pro", app: "Obsidian" }
+    };
+  });
+};
