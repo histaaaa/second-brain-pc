@@ -57,7 +57,6 @@ export function NebulaScene({
         {!inTimelineMode ? (
           <StardustPoints
             points={points}
-            categoryPositions={CATEGORY_POSITIONS}
             hoverable
           />
         ) : null}
