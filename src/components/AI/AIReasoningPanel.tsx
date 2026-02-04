@@ -18,10 +18,10 @@ export function AIReasoningPanel({ steps, isComplete = false }: AIReasoningPanel
 
   // 将字符串步骤转换为带状态的推理步骤
   useEffect(() => {
-    const newSteps = steps.map((text, index) => ({
+    const newSteps: ReasoningStep[] = steps.map((text, index) => ({
       id: `step-${index}`,
       text,
-      status: index < steps.length - 1 ? "completed" : (isComplete ? "completed" : "loading") as "loading"
+      status: index < steps.length - 1 ? "completed" : (isComplete ? "completed" : "loading") as "pending" | "loading" | "completed"
     }));
     setAnimatedSteps(newSteps);
   }, [steps, isComplete]);
