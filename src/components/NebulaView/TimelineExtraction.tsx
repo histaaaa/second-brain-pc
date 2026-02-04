@@ -5,7 +5,7 @@ import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import type { NebulaPoint } from "@/lib/db/local-data";
-import { getCategoryColor } from "@/lib/categories";
+import { getCategoryColor } from "@/lib/db/local-data";
 
 interface TimelineExtractionProps {
   points: NebulaPoint[];

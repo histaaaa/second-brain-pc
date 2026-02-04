@@ -1,12 +1,12 @@
 // 从 database 文件夹加载真实数据的工具
 // 直接内嵌数据，避免 fetch 问题
-// 包含 1000 条模拟数据用于展示
+// 包含 1400+ 条模拟数据用于展示
 
 export interface DatabaseStardust {
   id: string;
   content: string;
   title: string;
-  category: "CAREER" | "GROWTH" | "FAMILY" | "LEISURE" | "SOCIAL" | "HEALTH" | "WEALTH";
+  category: "CAREER" | "GROWTH" | "FAMILY" | "LEISURE" | "SOCIAL" | "HEALTH" | "WEALTH" | "DESIGN" | "HCI" | "TRAVEL";
   importance: number;
   created_at: number;
   updated_at: number;
@@ -24,10 +24,10 @@ export interface DatabaseProject {
 
 // 项目映射
 const PROJECT_MAP: Record<string, { name: string; description: string }> = {
-  "project-1": { name: "第二大脑项目", description: "AI 穿戴设备的记忆管理系统" },
-  "project-2": { name: "投影仪 ID 项目", description: "家居氛围投影仪工业设计" },
-  "project-3": { name: "过年广东出游", description: "2026年春节广东美食文化之旅" },
-  "project-4": { name: "新公司装修", description: "Kairos Innovation 工作室装修" },
+  "project-1": { name: "第二大脑", description: "AI 穿戴设备的记忆管理系统" },
+  "project-2": { name: "投影仪ID", description: "家居氛围投影仪工业设计" },
+  "project-3": { name: "过年旅行", description: "2026年春节广东美食文化之旅" },
+  "project-4": { name: "公司装修", description: "Kairos Innovation 工作室装修" },
 };
 
 // 分类颜色映射
@@ -45,7 +45,13 @@ export const getCategoryColor = (category: string): string => {
 };
 
 // ========== 真实数据源 (230条) ==========
-const REAL_DATA: { content: string; imp: number; source: string; project: string; category: string }[] = [
+const REAL_DATA: {
+  content: string;
+  imp: number;
+  source: "recording" | "manual";
+  project: string;
+  category: MockCategory;
+}[] = [
   // 第二大脑项目
   { content: "把原始数据叫'星尘'，处理后的叫'结晶'，这个隐喻太棒了", source: "recording", imp: 1.0, project: "project-1", category: "CAREER" },
   { content: "我们的核心壁垒不是录音，而是'主动连接'", source: "manual", imp: 0.95, project: "project-1", category: "CAREER" },
@@ -203,11 +209,21 @@ const REAL_DATA: { content: string; imp: number; source: string; project: string
   { content: "虽然过程很痛苦，但看到这个属于我们自己的空间一点点成型", source: "manual", imp: 1.0, project: "project-4", category: "CAREER" },
 ];
 
-// ========== 生成 1000 条模拟数据 ==========
-function generateMockData(realData: typeof REAL_DATA): typeof REAL_DATA {
-  const mockData: typeof REAL_DATA = [...realData];
-  const categories = ["CAREER", "GROWTH", "FAMILY", "LEISURE", "SOCIAL", "HEALTH", "WEALTH"] as const;
-  const projects = ["project-1", "project-2", "project-3", "project-4"];
+// ========== 生成 1400+ 条模拟数据 ==========
+type MockCategory = "CAREER" | "GROWTH" | "FAMILY" | "LEISURE" | "SOCIAL" | "HEALTH" | "WEALTH" | "DESIGN" | "HCI" | "TRAVEL";
+
+interface MockDataItem {
+  content: string;
+  imp: number;
+  source: "recording" | "manual";
+  project: string;
+  category: MockCategory;
+}
+
+function generateMockData(realData: typeof REAL_DATA): MockDataItem[] {
+  const mockData: MockDataItem[] = [...realData];
+  const categories = ["CAREER", "GROWTH", "FAMILY", "LEISURE", "SOCIAL", "HEALTH", "WEALTH", "DESIGN", "HCI", "TRAVEL"] as const;
+  const projects = ["project-1", "project-2", "project-3", "project-4"] as const;
   const sources = ["recording", "manual"] as const;
   
   const topics = {
@@ -217,7 +233,11 @@ function generateMockData(realData: typeof REAL_DATA): typeof REAL_DATA {
     LEISURE: ["电影推荐", "音乐分享", "游戏体验", "运动健身", "美食探店", "旅行计划", "阅读分享", "兴趣爱好", "周末活动", "放松方式"],
     SOCIAL: ["朋友聊天", "社交活动", "人脉维护", "团队建设", "沟通技巧", "关系处理", "聚会安排", "社交媒体", "Networking", "合作机会"],
     HEALTH: ["身体检查", "运动记录", "饮食控制", "睡眠质量", "心理健康", "医疗保健", "健身计划", "体能测试", "健康习惯", "疾病预防"],
-    WEALTH: ["理财规划", "投资记录", "消费记录", "储蓄目标", "税务规划", "收入分析", "支出控制", "资产配置", "财务自由", "保险规划"]
+    WEALTH: ["理财规划", "投资记录", "消费记录", "储蓄目标", "税务规划", "收入分析", "支出控制", "资产配置", "财务自由", "保险规划"],
+    // 设计/交互/旅行 分类
+    DESIGN: ["UI设计", "视觉设计", "品牌设计", "插画设计", "动效设计", "设计系统", "排版设计", "色彩理论", "图标设计", "界面布局", "响应式设计", "设计规范", "设计评审", "设计提案", "用户研究", "设计迭代", "设计工具", "原型设计", "设计灵感", "设计趋势"],
+    HCI: ["交互设计", "用户体验", "可用性测试", "用户旅程", "信息架构", "导航设计", "手势交互", "语音交互", "多模态交互", "无障碍设计", "界面动效", "微交互", "反馈设计", "表单设计", "搜索设计", "筛选排序", "分页设计", "加载状态", "空状态设计", "错误处理"],
+    TRAVEL: ["旅行计划", "目的地探索", "美食体验", "文化之旅", "自然风光", "城市探索", "旅行摄影", "住宿选择", "交通规划", "预算控制", "旅行装备", "旅行笔记", "旅行回顾", "签证办理", "保险购买", "外汇兑换", "行程安排", "景点门票", "当地交通", "旅行灵感"]
   };
   
   const actions = {
@@ -227,11 +247,15 @@ function generateMockData(realData: typeof REAL_DATA): typeof REAL_DATA {
     LEISURE: ["看了", "玩了", "吃了", "去了", "尝试了", "体验了", "放松了", "享受了", "分享了", "推荐了"],
     SOCIAL: ["聊了", "见了", "参加了", "组织了", "维护了", "沟通了", "互动了", "认识了", "感谢了", "回应了"],
     HEALTH: ["检查了", "运动了", "调整了", "记录了", "关注了", "改善了", "治疗了", "坚持了", "监测了", "预防了"],
-    WEALTH: ["规划了", "投资了", "记录了", "分析了", "控制了", "节省了", "检查了", "优化了", "储蓄了", "理财了"]
+    WEALTH: ["规划了", "投资了", "记录了", "分析了", "控制了", "节省了", "检查了", "优化了", "储蓄了", "理财了"],
+    // 设计/交互/旅行 动作
+    DESIGN: ["设计了", "绘制了", "优化了", "调整了", "定稿了", "评审了", "提案了", "迭代了", "探索了", "研究了", "绘制了", "完善了", "输出了", "定义了", "创建了", "调研了", "收集了", "整理了", "输出了", "应用了"],
+    HCI: ["设计了", "优化了", "测试了", "分析了", "改进了", "调研了", "验证了", "评估了", "完善了", "实现了", "调整了", "迭代了", "构建了", "梳理了", "定义了", "研究了", "诊断了", "重构了", "简化了", "提升了"],
+    TRAVEL: ["规划了", "探索了", "体验了", "品尝了", "拍摄了", "记录了", "安排了", "预订了", "研究了", "整理了", "分享了", "重温了", "整理了", "查阅了", "购买了", "兑换了", "制定了", "预定了", "研究了", "构思了"]
   };
   
-  // 生成剩余的 770 条数据
-  while (mockData.length < 1000) {
+  // 生成剩余的 2570 条数据（原有230条 + 2570 = 2800条）
+  while (mockData.length < 2800) {
     const category = categories[Math.floor(Math.random() * categories.length)];
     const project = projects[Math.floor(Math.random() * projects.length)];
     const source = sources[Math.floor(Math.random() * sources.length)];
@@ -275,15 +299,16 @@ function generateId(): string {
 
 // 从数据数组生成 Stardust 记录
 function generateStardustFromData(
-  data: typeof REAL_DATA
+  data: MockDataItem[]
 ): DatabaseStardust[] {
   const now = Date.now();
   const timeRange = 365 * 24 * 60 * 60 * 1000; // 1年
 
   return data.map((item, index) => {
-    // 时间分布：越新的数据越靠前
-    const progress = index / data.length;
-    const timeOffset = progress * timeRange + (Math.random() - 0.5) * 7 * 24 * 60 * 60 * 1000;
+    // 时间分布：更分散的随机分布
+    // 使用平方根分布让时间更分散
+    const progress = Math.pow(index / data.length, 0.7); // 非线性分布
+    const timeOffset = progress * timeRange + (Math.random() - 0.5) * 20 * 24 * 60 * 60 * 1000;
     const timestamp = now - timeOffset;
 
     return {
@@ -308,6 +333,16 @@ function generateStardustFromData(
 export async function loadDatabaseData(): Promise<{
   projects: DatabaseProject[];
   stardusts: DatabaseStardust[];
+  crystals: Array<{
+    id: string;
+    title: string;
+    content?: string;
+    category: string;
+    importance: number;
+    shape: "cube" | "star" | "diamond" | "sphere";
+    created_at: number;
+    projectIds: string[];
+  }>;
 }> {
   // 添加项目
   const projects: DatabaseProject[] = Object.entries(PROJECT_MAP).map(([id, info]) => ({
@@ -321,8 +356,272 @@ export async function loadDatabaseData(): Promise<{
   const fullData = generateMockData(REAL_DATA);
   const stardusts = generateStardustFromData(fullData);
 
-  console.log(`📦 加载了 ${projects.length} 个项目，${stardusts.length} 条星尘数据`);
-  return { projects, stardusts };
+  // ============== 关键词提取与关联 ==============
+  
+  // 停用词列表（中文常用词）
+  const STOP_WORDS = new Set([
+    '的', '了', '是', '在', '和', '也', '有', '就', '不', '我', '你', '他',
+    '她', '它', '们', '这', '那', '上', '下', '中', '里', '后', '前',
+    '会', '可以', '一个', '一些', '什么', '怎么', '为什么', '但是',
+    '而且', '或者', '如果', '因为', '所以', '虽然', '但是', '然后',
+    '时候', '自己', '没有', '已经', '非常', '可能', '应该', '需要'
+  ]);
+
+  // 从内容中提取关键词
+  function extractKeywords(content: string): string[] {
+    // 简单分词：按空格、标点分割
+    const words = content
+      .replace(/[\s，。！？、；：""''【】（）]/g, ' ')
+      .split(/\s+/)
+      .filter(w => w.length >= 2); // 至少2个字符
+    
+    // 去重、过滤停用词
+    const uniqueWords = new Set(
+      words.filter(w => !STOP_WORDS.has(w) && /[\u4e00-\u9fa5]/.test(w))
+    );
+    const keywords = Array.from(uniqueWords);
+    
+    return keywords;
+  }
+
+  // 根据关键词查找相关内容散点
+  function findRelatedStardusts(
+    keywords: string[],
+    stardustList: typeof stardusts,
+    targetCount: number = 25
+  ): string[] {
+    // 第一步：基于关键词匹配
+    const relatedIds = new Set<string>();
+    
+    stardustList.forEach(s => {
+      const stardustKeywords = extractKeywords(s.content);
+      // 检查是否有任意关键词匹配
+      const hasMatch = keywords.some(kw => 
+        s.content.includes(kw) || stardustKeywords.includes(kw)
+      );
+      if (hasMatch) {
+        relatedIds.add(s.id);
+      }
+    });
+    
+    // 第二步：如果匹配不足，随机补充到目标数量
+    const allIds = stardustList.map(s => s.id);
+    const currentIds = Array.from(relatedIds);
+    const needed = targetCount - currentIds.length;
+    
+    if (needed > 0) {
+      // 排除已选中的，随机选取
+      const availableIds = allIds.filter(id => !relatedIds.has(id));
+      const shuffled = availableIds.sort(() => Math.random() - 0.5);
+      shuffled.slice(0, needed).forEach(id => relatedIds.add(id));
+    }
+    
+    return Array.from(relatedIds);
+  }
+
+  // ============== 为每个项目生成文档结晶（至少8篇） ==============
+  
+  const projectCrystalTemplates = {
+    "project-1": [  // 第二大脑
+      {
+        title: "第二大脑交互设计心得",
+        category: "CAREER" as const,
+        content: "把原始数据叫'星尘'，处理后的叫'结晶'，这个隐喻太棒了。我们的核心壁垒不是录音，而是'主动连接'。双模态的设计解决了我的纠结：既要有 Notion 的秩序感，也要有 Atlas 的探索感。星云视图的粒子效果太炫了，数据可视化这边要用 Canvas 2D。"
+      },
+      {
+        title: "AI 伴侣产品定位思考",
+        category: "CAREER" as const,
+        content: "现在的 AI 硬件都在做助理，我想做的是'伴侣'。第二大脑是外挂海马体，不是效率工具。搜索不应该只是出列表，应该是'点亮星空'。项目只是从星云里抽出来的一根线，这个交互逻辑简直是天才。"
+      },
+      {
+        title: "技术架构复盘报告",
+        category: "CAREER" as const,
+        content: "Next.js 的 App Router 有时候会有坑，把 Zustand 装上了，用来管理'星云模式'和'归档模式'的状态切换。星云视图的粒子数设到 1000 个有点卡，得考虑性能优化。"
+      },
+      {
+        title: "产品设计哲学总结",
+        category: "DESIGN" as const,
+        content: "'结晶'的形状必须有意义，立方体代表工作，六边形代表知识，菱形代表灵感。引入荣格的'阴影'概念，遗忘的记忆就是阴影区。AI 必须主动连接，告诉用户 A 和 B 的关系。"
+      },
+      {
+        title: "项目里程碑与未来展望",
+        category: "CAREER" as const,
+        content: "我终于完成了第二大脑的原型，这是目前做过最酷的东西，它让我感觉自己在创造未来。跟 Joe 争论做 ToDo 还是灵感连接，最后选择了更自由的灵感连接模式。隐私是个大问题。"
+      },
+      {
+        title: "星云视图渲染性能优化",
+        category: "HCI" as const,
+        content: "粒子效果渲染优化：使用 requestAnimationFrame 替代 setInterval，减少不必要的重绘。Canvas 2D 比 WebGL 更适合这种场景，因为粒子数在 500-1000 之间，不需要太复杂的 3D 效果。"
+      },
+      {
+        title: "用户数据隐私保护方案",
+        category: "WEALTH" as const,
+        content: "所有数据存储在本地 IndexedDB，用户的记忆数据不会被上传到云端。这是与竞品最大的差异化。用户对自己的数据有完全的控制权，可以导出、导入、删除。"
+      },
+      {
+        title: "时间线视图交互设计",
+        category: "HCI" as const,
+        content: "时间线视图展示用户情绪的起伏，每个节点代表一个重要的记忆点。用户可以拖拽时间轴快速浏览历史，也可以点击节点查看详情。情绪用颜色编码，暖色代表积极，冷色代表消极。"
+      },
+    ],
+    "project-2": [  // HKUST 申请
+      {
+        title: "香港科技大学申请文书构思",
+        category: "GROWTH" as const,
+        content: "文书的核心要突出我对人机交互的热爱，以及为什么想来 HKUST 学习。导师的研究方向是情感计算和智能助手，这跟我的第二大脑项目高度契合。"
+      },
+      {
+        title: "推荐信准备与沟通",
+        category: "CAREER" as const,
+        content: "联系了 Prof. Wang 和 Dr. Liu 写推荐信。Prof. Wang 是我本科的毕业设计导师，对我的项目能力很了解。Dr. Liu 是实习期间的主管，可以证明我的工程能力。"
+      },
+      {
+        title: "英语考试成绩总结",
+        category: "GROWTH" as const,
+        content: " TOEFL 103 分， Speaking 部分 23 分，总算是够用了。口语还是弱项，到了香港要好好练习。HKUST 的要求是总分 80，我这个分数应该是够了。"
+      },
+      {
+        title: "HKUST 工学院课程设置研究",
+        category: "GROWTH" as const,
+        content: "研究了一下 HKUST 工学院的课程设置，有很多关于人工智能和人机交互的课程。COMP 5411 人机交互，COMP 5211 人工智能，这些课程都非常吸引我。"
+      },
+      {
+        title: "个人陈述修改记录",
+        category: "GROWTH" as const,
+        content: "第三版文书改完了，这次重点突出了我的产品思维和用户研究能力。加入了很多关于情感计算和记忆增强的思考，希望能让评审眼前一亮。"
+      },
+      {
+        title: "面试准备与模拟练习",
+        category: "CAREER" as const,
+        content: "收到面试通知了，下周一面。准备了常见的面试问题：为什么选择 HKUST？未来的研究方向是什么？第二大脑项目中最有挑战的部分是什么？"
+      },
+      {
+        title: "申请材料清单与检查",
+        category: "GROWTH" as const,
+        content: "材料清单：申请表、个人陈述、简历、推荐信、成绩单、英语成绩、作品集。每个材料都检查了三遍，确保没有拼写错误和格式问题。"
+      },
+      {
+        title: "作品集整理与优化",
+        category: "DESIGN" as const,
+        content: "作品集收录了五个项目：第二大脑、校园导航 App、情感日记、智能家居控制面板、个人博客。每个项目都包含设计过程、最终效果和技术实现。"
+      },
+    ],
+    "project-3": [  // 搬家
+      {
+        title: "新办公室装修进度汇报",
+        category: "CAREER" as const,
+        content: "新办公室的装修已经完成了一大半，墙面刷成了浅灰色，地面铺了木纹地板。工位布局采用了开放式设计，方便团队协作。窗边特意留了一块休息区。"
+      },
+      {
+        title: "搬家物品清单与打包计划",
+        category: "FAMILY" as const,
+        content: "列了一个详细的打包清单：办公设备、个人物品、书籍、装饰品。每个箱子都标注了类别和目的地。贵重物品自己搬，易碎品用气泡膜包好。"
+      },
+      {
+        title: "新办公室网络布线方案",
+        category: "CAREER" as const,
+        content: "全屋 WiFi 6 覆盖，每个房间一个 AP。工位预留网口，以备不时之需。机房设在杂物间，配了 UPS 电源，确保服务器稳定运行。"
+      },
+      {
+        title: "绿植选购与摆放计划",
+        category: "LEISURE" as const,
+        content: "买了几盆绿萝和龟背竹，放在窗台和工位旁边。绿植能净化空气，也能缓解视觉疲劳。特意选了容易养活的品种，适合我这种经常出差的人。"
+      },
+      {
+        title: "新办公室咖啡机选购",
+        category: "LEISURE" as const,
+        content: "研究了半个月的咖啡机，最后选了半自动的意式咖啡机。胶囊机太贵，手冲太麻烦，半自动刚刚好。每天早上给自己做一杯咖啡，开启美好的一天。"
+      },
+      {
+        title: "搬家费用预算与控制",
+        category: "WEALTH" as const,
+        content: "搬家总费用包括：装修费、家具费、搬迁费、绿植费。装修超支了一点，但总体还在预算范围内。搬家找的是朋友介绍的公司，打了个八折。"
+      },
+      {
+        title: "新办公室安全系统配置",
+        category: "CAREER" as const,
+        content: "安装了智能门禁系统，支持人脸识别和手机解锁。监控摄像头覆盖了所有出入口和公共区域。消防设施也检查了一遍，确保符合安全标准。"
+      },
+      {
+        title: "搬家后的团队聚餐安排",
+        category: "SOCIAL" as const,
+        content: "搬家后第一次团队聚餐，选了附近新开的一家日料店。大家都对新办公室很满意，气氛很活跃。聊了聊接下来的项目计划，充满了干劲。"
+      },
+    ],
+    "project-4": [  // 生活
+      {
+        title: "健身计划与执行记录",
+        category: "HEALTH" as const,
+        content: "重新开始健身了，一周三次，每次一个小时。主要练胸、背、腿三个部位。饮食上减少了碳水摄入，增加了蛋白质。一个月下来，体重减轻了两公斤。"
+      },
+      {
+        title: "年度阅读计划与书单",
+        category: "GROWTH" as const,
+        content: "今年计划读 24 本书，平均一个月两本。书单包括：《设计心理学》《情感化设计》《认知心理学》《上瘾》。每天睡前阅读半小时，已经成了习惯。"
+      },
+      {
+        title: "周末户外活动记录",
+        category: "LEISURE" as const,
+        content: "这个周末去了白云山徒步，呼吸新鲜空气，锻炼身体。山顶的风景很美，拍照发朋友圈收获了很多赞。下次准备去白云嶂挑战一下。"
+      },
+      {
+        title: "家庭聚会与亲情时光",
+        category: "FAMILY" as const,
+        content: "这个周末回了趟老家，陪父母吃饭、聊天、散步。聊了很多小时候的趣事，也说了说最近的工作和生活。父母年纪大了，要多抽时间陪陪他们。"
+      },
+      {
+        title: "投资理财月度总结",
+        category: "WEALTH" as const,
+        content: "这个月的投资收益还不错，股票涨了 5%，基金涨了 3%。继续定投，每个月固定投入 2000 元。长期持有，不做短线操作。"
+      },
+      {
+        title: "社交活动与人脉维护",
+        category: "SOCIAL" as const,
+        content: "参加了一场产品经理的线下分享会，认识了几个同行。大家交流了各自的从业经历和产品心得，还交换了联系方式。职场人脉很重要，要经常维护。"
+      },
+      {
+        title: "睡眠质量监测与改善",
+        category: "HEALTH" as const,
+        content: "用睡眠监测 app 分析了一个月的睡眠数据，发现深度睡眠比例偏低。尝试了睡前冥想和远离电子设备，效果不错，继续保持。"
+      },
+      {
+        title: "兴趣爱好培养计划",
+        category: "LEISURE" as const,
+        content: "重拾了吉他，每周找时间练习一小时。从最基础的指法开始练起，希望能弹出几首完整的歌。音乐能让人放松，是很好的减压方式。"
+      },
+    ],
+  };
+  
+  // 为每个项目生成结晶
+  const allCrystals: any[] = [];
+  
+  projects.forEach((project) => {
+    const templates = projectCrystalTemplates[project.id as keyof typeof projectCrystalTemplates] || [];
+    const projectStardusts = stardusts.filter(s => s.project_id === project.id);
+    
+    templates.forEach((template, idx) => {
+      // 结晶时间分散开：每篇间隔 30 天（一个月）
+      const dayOffset = 30 + idx * 30;
+      allCrystals.push({
+        id: `crystal-${project.id}-${idx}`,
+        title: template.title,
+        content: template.content,
+        category: template.category,
+        importance: 0.7 + Math.random() * 0.3,
+        shape: "sphere" as const,
+        created_at: Date.now() - dayOffset * 24 * 60 * 60 * 1000,
+        projectIds: [project.id],
+        sourceStardustIds: findRelatedStardusts(
+          extractKeywords(template.content),
+          projectStardusts,
+          15
+        ),
+      });
+    });
+  });
+  
+  console.log(`📦 加载了 ${projects.length} 个项目，${stardusts.length} 条星尘数据，${allCrystals.length} 条结晶数据`);
+  return { projects, stardusts, crystals: allCrystals };
 }
 
 // 转换为 NebulaPoint 格式（用于 3D 渲染）
@@ -336,33 +635,173 @@ export interface NebulaPoint {
   importance: number;
   shape?: "cube" | "star" | "diamond" | "sphere";
   projectIds: string[];
+  // 来源星尘（仅结晶有）
+  sourceStardustIds?: string[];
   // 3D 位置
   position?: [number, number, number];
 }
 
 export function stardustsToNebulaPoints(stardusts: DatabaseStardust[]): NebulaPoint[] {
-  return stardusts.map((s, index) => {
-    // 使用球面分布算法，让点在3D空间中自然散开
-    const phi = Math.acos(-1 + (2 * index) / stardusts.length);
-    const theta = Math.sqrt(stardusts.length * Math.PI) * phi;
+  // 按分类分组处理，让每个分类的点形成独立聚类
+  
+  // 先按分类分组
+  const categoryGroups: Record<string, DatabaseStardust[]> = {};
+  stardusts.forEach(s => {
+    if (!categoryGroups[s.category]) {
+      categoryGroups[s.category] = [];
+    }
+    categoryGroups[s.category].push(s);
+  });
+  
+  const allPoints: NebulaPoint[] = [];
+  const categoryList = Object.keys(categoryGroups);
+  
+  // 为每个分类计算其在球面上的扇区中心
+  const categoryCenters: Record<string, [number, number, number]> = {};
+  const numCategories = categoryList.length;
+  
+  categoryList.forEach((cat, index) => {
+    // 使用斐波那契球面分布算法，让分类中心均匀分布在球面上
+    const phi = Math.acos(-1 + (2 * index) / numCategories);
+    const theta = Math.sqrt(numCategories * Math.PI) * phi;
+    // 根据重要性分布，半径有变化：有些分类靠近中心，有些远离
+    const baseRadius = 20 + (index % 3) * 15; // 20, 35, 50 交替
+    const randomVariation = (Math.random() - 0.5) * 5; // 随机波动
+    const radius = baseRadius + randomVariation;
     
-    // 距离中心越远，点越稀疏
-    const radius = 10 + Math.random() * 5 + (1 - s.importance) * 3;
+    categoryCenters[cat] = [
+      radius * Math.cos(theta) * Math.sin(phi),
+      radius * Math.sin(theta) * Math.sin(phi),
+      radius * Math.cos(phi)
+    ];
+  });
+  
+  // 处理每个分类的点
+  categoryList.forEach((cat, catIndex) => {
+    const items = categoryGroups[cat];
+    const center = categoryCenters[cat];
+    const numItems = items.length;
     
-    const x = radius * Math.cos(theta) * Math.sin(phi);
-    const y = radius * Math.sin(theta) * Math.sin(phi);
-    const z = radius * Math.cos(phi);
-    
+    items.forEach((s, index) => {
+      // 在分类中心周围生成点，形成紧密的聚类
+      const phi = Math.acos(-1 + (2 * index) / numItems);
+      const theta = Math.sqrt(numItems * Math.PI) * phi;
+      
+      // 聚类内部半径（较小，形成紧凑的聚类）
+      const clusterRadius = 4 + Math.random() * 3;
+      
+      // 计算基础位置（在分类中心周围）
+      const baseX = center[0] + clusterRadius * Math.cos(theta) * Math.sin(phi);
+      const baseY = center[1] + clusterRadius * Math.sin(theta) * Math.sin(phi);
+      const baseZ = center[2] + clusterRadius * Math.cos(phi);
+      
+      // 添加微小的随机偏移，让点不完全在同一个球面上
+      const randomJitter = (Math.random() - 0.5) * 0.5;
+      
+      // 根据重要性调整距离中心的位置
+      const importanceRadius = (1 - s.importance) * 3;
+      
+      const x = baseX + randomJitter + importanceRadius;
+      const y = baseY + randomJitter + importanceRadius;
+      const z = baseZ + randomJitter + importanceRadius;
+      
+      allPoints.push({
+        id: s.id,
+        type: "dust" as const,
+        content: s.content,
+        title: s.title,
+        category: s.category,
+        timestamp: s.created_at,
+        importance: s.importance,
+        shape: undefined,
+        projectIds: s.project_id ? [s.project_id] : [],
+        position: [x, y, z]
+      });
+    });
+  });
+  
+  return allPoints;
+}
+
+/**
+ * 将结晶数据转换为 NebulaPoint 格式
+ */
+export function crystalsToNebulaPoints(
+  crystals: Array<{
+    id: string;
+    title: string;
+    content?: string;
+    category: string;
+    importance: number;
+    shape: "cube" | "star" | "diamond" | "sphere";
+    created_at: number;
+    projectIds: string[];
+    sourceStardustIds?: string[];
+  }>,
+  existingPoints: NebulaPoint[] = []
+): NebulaPoint[] {
+  // 获取现有的分类中心位置
+  const existingByCategory: Record<string, NebulaPoint[]> = {};
+  existingPoints.forEach(p => {
+    if (!existingByCategory[p.category]) {
+      existingByCategory[p.category] = [];
+    }
+    existingByCategory[p.category].push(p);
+  });
+
+  // 计算每个分类的中心点
+  const categoryCenters: Record<string, [number, number, number]> = {};
+  Object.entries(existingByCategory).forEach(([cat, pts]) => {
+    if (pts.length > 0) {
+      let sumX = 0, sumY = 0, sumZ = 0;
+      let count = 0;
+      for (const p of pts) {
+        if (p.position) {
+          sumX += p.position[0];
+          sumY += p.position[1];
+          sumZ += p.position[2];
+          count++;
+        }
+      }
+      if (count > 0) {
+        categoryCenters[cat] = [sumX / count, sumY / count, sumZ / count];
+      }
+    }
+  });
+
+  return crystals.map(c => {
+    // 结晶放置在分类中心附近
+    let center = categoryCenters[c.category];
+    if (!center) {
+      // 如果没有现有点，随机生成一个位置
+      const phi = Math.random() * Math.PI * 2;
+      const theta = Math.random() * Math.PI;
+      const radius = 30 + Math.random() * 10;
+      center = [
+        radius * Math.sin(theta) * Math.cos(phi),
+        radius * Math.sin(theta) * Math.sin(phi),
+        radius * Math.cos(theta)
+      ];
+    }
+
+    // 结晶位置稍微偏移分类中心
+    const offsetAngle = Math.random() * Math.PI * 2;
+    const offsetRadius = 3 + Math.random() * 2;
+    const x = center[0] + offsetRadius * Math.cos(offsetAngle);
+    const y = center[1] + offsetRadius * Math.sin(offsetAngle);
+    const z = center[2] + (Math.random() - 0.5) * 2;
+
     return {
-      id: s.id,
-      type: "dust" as const,
-      content: s.content,
-      title: s.title,
-      category: s.category,
-      timestamp: s.created_at,
-      importance: s.importance,
-      shape: undefined,
-      projectIds: s.project_id ? [s.project_id] : [],
+      id: c.id,
+      type: "crystal" as const,
+      content: c.content ?? c.title,
+      title: c.title,
+      category: c.category,
+      timestamp: c.created_at,
+      importance: c.importance,
+      shape: c.shape,
+      projectIds: c.projectIds,
+      sourceStardustIds: c.sourceStardustIds ?? [],
       position: [x, y, z]
     };
   });

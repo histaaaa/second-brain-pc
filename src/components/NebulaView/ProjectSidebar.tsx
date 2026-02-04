@@ -30,80 +30,53 @@ export function ProjectSidebar({
   }
 
   return (
-    <div className="absolute right-6 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-3 pointer-events-auto">
-      <h3 className="text-[10px] font-mono text-gray-600 uppercase tracking-widest mb-1 text-center">
+    <div className="absolute left-6 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-2 pointer-events-auto">
+      <h3 className="text-[10px] font-mono text-gray-600 uppercase tracking-widest mb-1 text-left">
         Projects
       </h3>
       
       {projects.map((project) => {
         const isActive = activeProjectId === project.id;
         const isHovered = hoveredProject === project.id;
-        const hasPoints = projectPoints.length > 0;
         
         return (
-          <div key={project.id} className="relative group">
-            {/* 悬停时显示的点计数 */}
-            {isHovered && hasPoints && (
-              <div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-white/5 backdrop-blur-sm px-2.5 py-1 rounded-lg text-[10px] text-gray-400 whitespace-nowrap">
-                {projectPoints.length} points
-              </div>
-            )}
-            
-            <button
-              onMouseEnter={() => setHoveredProject(project.id)}
-              onMouseLeave={() => setHoveredProject(null)}
-              onClick={() => {
-                if (isActive) {
-                  onSelectProject(null);
-                } else {
-                  onSelectProject(project.id);
-                }
-              }}
-              className={`
-                relative w-10 h-10 rounded-lg flex items-center justify-center
-                transition-all duration-300 ease-out
-                ${isActive 
-                  ? "bg-white/15 shadow-lg shadow-white/5 scale-110" 
-                  : "bg-white/5 hover:bg-white/10 hover:scale-105"
-                }
-              `}
-              title={project.name}
-            >
-              {/* 项目图标/首字母 */}
-              <span className="text-xs font-bold text-white/80">
-                {project.name.charAt(0).toUpperCase()}
-              </span>
-              
-              {/* 活跃状态指示器 */}
-              {isActive && (
-                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-green-400" />
-              )}
-            </button>
-            
-            {/* 项目名称标签 */}
-            <div className={`
-              absolute right-full mr-3 top-1/2 -translate-y-1/2
-              px-2.5 py-1 rounded-lg bg-white/5 backdrop-blur-sm
-              text-[10px] font-medium text-white/70 whitespace-nowrap
-              transition-all duration-200 pointer-events-auto
-              ${isActive || isHovered ? "opacity-100 translate-x-0" : "opacity-0 translate-x-2 pointer-events-none"}
-            `}>
+          <button
+            key={project.id}
+            onMouseEnter={() => setHoveredProject(project.id)}
+            onMouseLeave={() => setHoveredProject(null)}
+            onClick={() => {
+              if (isActive) {
+                onSelectProject(null);
+              } else {
+                onSelectProject(project.id);
+                onOpenTimeline(project.id, projectPoints);
+              }
+            }}
+            className={`
+              relative w-auto min-w-[120px] px-3 py-2 rounded-lg text-left
+              transition-all duration-300 ease-out
+              ${isActive 
+                ? "bg-white/15 shadow-lg shadow-white/5" 
+                : "bg-white/5 hover:bg-white/10"
+              }
+            `}
+            title={project.name}
+          >
+            {/* 完整项目名称 */}
+            <span className="text-xs font-medium text-white/80 block truncate">
               {project.name}
-              
-              {/* 展开时间线按钮 */}
-              {isActive && projectPoints.length > 0 && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onOpenTimeline(project.id, projectPoints);
-                  }}
-                  className="ml-2 text-[9px] text-gray-500 hover:text-white/80 transition-colors"
-                >
-                  [Timeline]
-                </button>
-              )}
-            </div>
-          </div>
+            </span>
+            
+            {/* 点计数 */}
+            <span className="text-[9px] text-gray-500">
+              {projectPoints.length} points
+            </span>
+            
+            {/* 活跃状态指示器 */}
+            {isActive && (
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-green-400" />
+            )}
+          </button>
         );
       })}
     </div>

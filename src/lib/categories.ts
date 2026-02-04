@@ -1,27 +1,18 @@
 /**
  * 9 大分类：色板与配置
  * 
- * 主题设计：
- * - DESIGN: 设计相关（UI/UX、视觉设计等）
- * - HCI: 人机交互（用户体验、交互设计等）
- * - RELATIONSHIPS: 人际关系（社交、沟通等）
- * - TRAVEL: 旅行（出行、景点、攻略等）
- * - FINANCE: 理财（投资、储蓄、消费等）
- * - WORK: 工作（职场、项目、会议等）
- * - LEARNING: 学习（读书、课程、技能等）
- * - ENTERTAINMENT: 娱乐（电影、游戏、音乐等）
- * - HEALTH: 健康（医疗、身体、心理等）
+ * 主题设计：鲜明对比色，每个分类有明显区分
  */
 export const CATEGORIES = [
-  { id: "DESIGN", label: "设计", color: "#00ff88", glow: "#00ffaa" },          // 荧光绿
-  { id: "HCI", label: "交互", color: "#00ccff", glow: "#00eeff" },             // 荧光蓝
-  { id: "RELATIONSHIPS", label: "关系", color: "#ff66aa", glow: "#ff88cc" },   // 荧光粉
-  { id: "TRAVEL", label: "旅行", color: "#ffcc00", glow: "#ffee33" },          // 荧光黄
-  { id: "FINANCE", label: "理财", color: "#00ffcc", glow: "#00ffee" },         // 荧光青
-  { id: "WORK", label: "工作", color: "#aa66ff", glow: "#cc88ff" },            // 荧光紫
-  { id: "LEARNING", label: "学习", color: "#ff8800", glow: "#ffaa33" },        // 荧光橙
-  { id: "ENTERTAINMENT", label: "娱乐", color: "#ff00ff", glow: "#ff44ff" },   // 荧光洋红
-  { id: "HEALTH", label: "健康", color: "#00ff99", glow: "#00ffbb" },          // 荧光薄荷
+  { id: "DESIGN", label: "设计", color: "#3b82f6", glow: "#60a5fa" },          // 蓝色
+  { id: "HCI", label: "交互", color: "#06b6d4", glow: "#22d3ee" },             // 青色
+  { id: "RELATIONSHIPS", label: "关系", color: "#ec4899", glow: "#f472b6" },     // 粉色
+  { id: "TRAVEL", label: "旅行", color: "#eab308", glow: "#facc15" },           // 黄色
+  { id: "FINANCE", label: "理财", color: "#f59e0b", glow: "#fbbf24" },          // 金色
+  { id: "WORK", label: "工作", color: "#8b5cf6", glow: "#a78bfa" },              // 紫色
+  { id: "LEARNING", label: "学习", color: "#f97316", glow: "#fb923c" },          // 橙色
+  { id: "ENTERTAINMENT", label: "娱乐", color: "#d946ef", glow: "#e879f9" },     // 洋红色
+  { id: "HEALTH", label: "健康", color: "#22c55e", glow: "#4ade80" },            // 绿色
 ] as const;
 
 // 旧类别到新类别的映射（兼容旧数据）
