@@ -16,23 +16,27 @@ export interface Stardust {
 }
 
 const SUB_LABELS: Record<CategoryId, string[]> = {
-  GROWTH: ["意大利语", "荣格心理学", "睡眠", "阅读", "写作", "课程", "冥想"],
-  FAMILY: ["奶奶电话", "远程问诊", "家庭聚餐", "生日", "纪念日"],
-  CAREER: ["HKUST 申请", "AI 硬件", "设计评审", "人体工学", "会议纪要"],
-  LEISURE: ["小屋 Alpha", "桌面布置", "咖啡", "画廊", "护照续签", "VR 游戏", "环境光", "素描", "科幻片"],
-  SOCIAL: ["李教授", "团建", "Joe", "人脉", "聚会", "会议"],
-  HEALTH: ["咖啡因记录", "家务", "生物钟", "日记", "冥想", "运动"],
-  WEALTH: ["自由职业", "米兰预算", "报销", "奖学金", "理财"],
+  DESIGN: ["UI 设计", "UX 研究", "设计系统", "品牌设计", "插画"],
+  HCI: ["交互设计", "可用性测试", "用户调研", "原型设计", "无障碍设计"],
+  RELATIONSHIPS: ["家人联系", "朋友聚会", "社交活动", "人脉维护", "家庭聚餐"],
+  TRAVEL: ["旅行计划", "出行攻略", "酒店预订", "景点推荐", "旅行笔记"],
+  FINANCE: ["理财规划", "预算管理", "投资记录", "收入支出", "财务目标"],
+  WORK: ["工作任务", "项目协作", "会议记录", "职业发展", "工作效率"],
+  LEARNING: ["语言学习", "技能提升", "在线课程", "阅读笔记", "知识管理"],
+  ENTERTAINMENT: ["影视娱乐", "游戏放松", "音乐欣赏", "艺术收藏", "休闲活动"],
+  HEALTH: ["运动健身", "作息管理", "饮食健康", "心理健康", "日常习惯"],
 };
 
 const CONTENT_SAMPLES: Record<CategoryId, string[]> = {
-  GROWTH: ["今日学习笔记", "读书摘要", "课程心得", "反思记录", "技能练习"],
-  FAMILY: ["与家人通话记录", "家庭事项", "健康随访", "节日安排"],
-  CAREER: ["项目进展", "会议记录", "待办事项", "邮件摘要", "协作笔记"],
-  LEISURE: ["观影记录", "游戏心得", "旅行计划", "爱好相关"],
-  SOCIAL: ["社交活动记录", "人脉备注", "会议要点", "合作意向"],
-  HEALTH: ["作息记录", "运动打卡", "饮食笔记", "情绪记录"],
-  WEALTH: ["支出记录", "预算规划", "收入备注", "投资笔记"],
+  DESIGN: ["设计灵感", "UI 作品", "品牌方案", "设计思考", "创意草图"],
+  HCI: ["用户研究", "交互方案", "可用性分析", "原型演示", "测试反馈"],
+  RELATIONSHIPS: ["社交互动", "关系维护", "聚会记录", "人脉备注", "情感交流"],
+  TRAVEL: ["旅行见闻", "行程安排", "目的地探索", "旅行心得", "出行计划"],
+  FINANCE: ["财务记录", "投资分析", "预算执行", "理财心得", "消费回顾"],
+  WORK: ["工作进展", "项目协作", "会议纪要", "任务管理", "工作总结"],
+  LEARNING: ["学习笔记", "课程总结", "知识沉淀", "技能练习", "阅读感悟"],
+  ENTERTAINMENT: ["观影感受", "游戏体验", "音乐分享", "艺术欣赏", "休闲活动"],
+  HEALTH: ["运动记录", "作息追踪", "健康监测", "饮食日志", "身心状态"],
 };
 
 const PROJECT_IDS = ["project-a", "project-b", "project-c", "project-d", "project-e"];
@@ -54,7 +58,7 @@ function randomDate(yearBack: number): Date {
 
 export function generateStardust(count: number = 1000): Stardust[] {
   const categories: CategoryId[] = [
-    "GROWTH", "FAMILY", "CAREER", "LEISURE", "SOCIAL", "HEALTH", "WEALTH",
+    "HEALTH", "DESIGN", "HCI", "TRAVEL", "FINANCE", "WORK", "LEARNING", "ENTERTAINMENT", "RELATIONSHIPS",
   ];
   const out: Stardust[] = [];
   const usedIds = new Set<string>();

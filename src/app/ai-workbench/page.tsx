@@ -1,8 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 const AIWorkbench = dynamic(
   () => import("@/components/AIWorkbench"),
@@ -19,35 +18,43 @@ const AIWorkbench = dynamic(
   }
 );
 
-export default function AIWorkbenchPage() {
-  const searchParams = useSearchParams();
+function SearchParamsHandler({ onReady }: { onReady: () => void }) {
   const [initialQuery, setInitialQuery] = useState("");
-  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    const query = searchParams.get("query");
+    // This component only runs on client, so we can use window.location
+    const params = new URLSearchParams(window.location.search);
+    const query = params.get("query");
     if (query) {
       setInitialQuery(decodeURIComponent(query));
     }
-    // 短暂延迟以确保组件完全加载
-    const timer = setTimeout(() => setIsReady(true), 100);
+    // Brief delay to ensure component is fully loaded
+    const timer = setTimeout(() => onReady(), 100);
     return () => clearTimeout(timer);
-  }, [searchParams]);
+  }, [onReady]);
 
-  if (!isReady) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-void">
-        <div className="text-center">
-          <div className="w-12 h-12 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-white/60 text-sm">加载 AI 工作台...</p>
-        </div>
+  return <AIWorkbench initialQuery={initialQuery} />;
+}
+
+function LoadingFallback() {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-void">
+      <div className="text-center">
+        <div className="w-12 h-12 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-white/60 text-sm">加载 AI 工作台...</p>
       </div>
-    );
-  }
+    </div>
+  );
+}
+
+export default function AIWorkbenchPage() {
+  const [isReady, setIsReady] = useState(false);
 
   return (
     <main className="relative w-full h-screen overflow-hidden">
-      <AIWorkbench initialQuery={initialQuery} />
+      <Suspense fallback={<LoadingFallback />}>
+        <SearchParamsHandler onReady={() => setIsReady(true)} />
+      </Suspense>
     </main>
   );
 }

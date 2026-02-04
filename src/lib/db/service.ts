@@ -13,7 +13,7 @@ import type {
 import { db } from "./schema";
 
 const CATEGORIES: CategoryId[] = [
-  "GROWTH", "FAMILY", "CAREER", "LEISURE", "SOCIAL", "HEALTH", "WEALTH",
+  "HEALTH", "DESIGN", "HCI", "TRAVEL", "FINANCE", "WORK", "LEARNING", "ENTERTAINMENT", "RELATIONSHIPS",
 ];
 const SHAPES: CrystalRecord["shape"][] = ["cube", "star", "diamond", "sphere"];
 
