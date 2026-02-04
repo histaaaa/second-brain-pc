@@ -1,16 +1,16 @@
 [build]
-  command = "npm run build"
-  publish = ".next"
+command = "npm run build"
+publish = ".next"
 
 [build.environment]
-  NODE_VERSION = "18"
+NODE_VERSION = "18"
 
+# 正确的 Netlify + Next.js 配置
+# 只需要处理 API 路由，其他交给 Next.js 处理
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+# 注意：不要添加 /* -> /index.html 的重定向！
+# Next.js 应用在 .next 目录中会自动处理路由
