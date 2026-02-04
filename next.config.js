@@ -1,20 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Cloudflare Pages 基础配置
-  output: 'standalone',
+  // 改为静态导出模式（不需要服务器）
+  output: 'export',
   images: {
     unoptimized: true,
   },
   
   // 确保静态资源正确处理
   assetPrefix: undefined,
-  
-  // 开启必要的实验性功能
-  experimental: {
-    serverActions: {
-      bodySizeLimit: '2mb',
-    },
-  },
 }
 
 module.exports = nextConfig
